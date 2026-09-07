@@ -1,0 +1,980 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#08233f">
+<meta name="description" content="RSB — Resgate por Cordas">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RSB">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<title>RSB — Resgate por Cordas</title>
+<style>
+:root{--navy:#08233f;--navy2:#0d365c;--blue:#1261a0;--blue-soft:#eaf3fa;--blue-pale:#f4f8fb;--red:#c62032;--red-dark:#9e1727;--red-soft:#fce8eb;--ink:#10212f;--muted:#617383;--line:#cbd9e4;--line-dark:#aebfce;--white:#fff;--green:#177245;--yellow:#9b6700;--danger:#a91e2b;--black:#29323a;--shadow:0 8px 24px rgba(8,35,63,.10);--shadow-soft:0 4px 12px rgba(8,35,63,.07)}
+*{box-sizing:border-box}
+html{background:var(--blue-pale);-webkit-text-size-adjust:100%}
+body{min-width:320px;margin:0;color:var(--ink);background:linear-gradient(135deg,rgba(18,97,160,.035) 25%,transparent 25%) 0 0/24px 24px,var(--blue-pale);font:16px/1.5 Arial,sans-serif}
+button,input,select{font:inherit}
+button{min-height:46px;padding:10px 13px;border:0;border-radius:10px;font-weight:800;cursor:pointer;transition:transform .16s ease,background .16s ease,color .16s ease,border-color .16s ease,box-shadow .16s ease}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.55;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid rgba(198,32,50,.30);outline-offset:2px}
+.hide{display:none!important}
+.busy{opacity:.6;cursor:wait}
+header{position:relative;overflow:hidden;padding:24px 20px 20px;color:var(--white);border-bottom:5px solid var(--red);background:linear-gradient(120deg,rgba(255,255,255,.06),transparent 42%),var(--navy)}
+header::after{position:absolute;top:0;right:-44px;width:170px;height:100%;content:"";background:repeating-linear-gradient(-45deg,rgba(255,255,255,.07) 0 7px,transparent 7px 17px);transform:skewX(-14deg)}
+header>.header-content,header>div,main{position:relative;z-index:1;max-width:760px;margin:auto}
+h1{margin:0;font-size:2.55rem;letter-spacing:-.045em;line-height:1}
+header p{max-width:34ch;margin:10px 0 0;color:#d9e9f5;font-size:.98rem;font-weight:600}
+main{padding:22px 14px 46px}
+.card{padding:22px;border:1px solid var(--line);border-top:4px solid var(--navy);border-radius:14px;background:var(--white);box-shadow:var(--shadow);touch-action:pan-y pinch-zoom}
+h2{margin:0 0 6px;color:var(--navy);font-size:1.72rem;letter-spacing:-.03em}
+h3{margin:0;color:var(--navy);font-size:1.05rem;letter-spacing:-.01em}
+.muted,.empty,small{color:var(--muted)}
+.muted{margin:0 0 20px}
+.field{display:grid;gap:7px;margin-bottom:15px}
+label{color:var(--navy);font-size:.88rem;font-weight:800}
+input,select{width:100%;min-height:50px;padding:10px 12px;color:var(--ink);border:1px solid var(--line-dark);border-radius:9px;background:var(--white);box-shadow:inset 0 1px 0 rgba(8,35,63,.03)}
+input:focus,select:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 3px rgba(18,97,160,.13)}
+.primary{width:100%;color:var(--white);border:1px solid var(--red-dark);background:var(--red);box-shadow:0 4px 0 var(--red-dark)}
+.primary:hover{background:var(--red-dark)}
+.primary:active{transform:translateY(2px);box-shadow:0 2px 0 var(--red-dark)}
+.secondary{color:var(--navy);border:1px solid var(--line-dark);background:var(--white)}
+.secondary:hover{color:var(--blue);border-color:var(--blue);background:var(--blue-soft)}
+.link,.logout{min-height:auto;padding:14px 0 0;color:var(--blue);border-radius:0;background:transparent;text-decoration:underline;text-underline-offset:3px}
+.logout{padding:8px 0;color:var(--red);font-size:.85rem}
+.msg{display:none;margin-top:14px;padding:11px 12px;border:1px solid transparent;border-radius:9px;font-size:.88rem;font-weight:750}
+.msg.e{display:block;color:#8c1522;border-color:#edbac1;background:var(--red-soft);animation:expandIn .18s ease}
+.msg.ok{display:block;color:#155b39;border-color:#aad3bb;background:#e7f4ec;animation:expandIn .18s ease}
+.transfer-box{display:block!important}
+.head,.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.head{position:relative;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.head::after{position:absolute;bottom:-1px;left:0;width:48px;height:3px;content:"";background:var(--red)}
+.num{margin:0;color:var(--navy);font-size:1.42rem;font-weight:900;letter-spacing:-.035em}
+.role{margin:2px 0 0;color:var(--muted);font-size:.82rem;font-weight:700}
+.tabs{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:22px;padding:5px;border:1px solid var(--line);border-radius:11px;background:var(--blue-pale)}
+.tabs.admin{grid-template-columns:repeat(3,1fr)}
+.tab{min-height:42px;padding:8px 7px;color:var(--navy2);border:1px solid transparent;border-radius:7px;background:transparent;font-size:.8rem}
+.tab:hover{background:rgba(18,97,160,.08)}
+.tab.on{color:var(--white);border-color:var(--navy);background:var(--navy);box-shadow:0 2px 5px rgba(8,35,63,.18)}
+.panel{display:none}
+.panel.on{display:block;animation:expandIn .22s ease}
+.list{display:grid;gap:8px;margin-top:14px}
+#teams{grid-template-columns:repeat(2,minmax(0,1fr))}
+.row{position:relative;padding:12px 40px 12px 12px;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:10px;background:var(--white);box-shadow:var(--shadow-soft)}
+.row strong,.row small{display:block}
+.row strong{color:var(--navy);font-size:.88rem}
+.row small{font-size:.74rem}
+.tab-wide{grid-column:1/-1}
+.bin-btn,.deact-btn,.chief-btn{width:28px;height:28px;min-height:28px;padding:0;display:grid;place-items:center;border-radius:6px;line-height:1;cursor:pointer;transition:all .16s ease}
+.bin-btn{color:var(--danger);border:1px solid #edbac1;background:var(--red-soft)}
+.bin-btn:hover{color:var(--white);border-color:var(--danger);background:var(--danger)}
+.deact-btn{color:var(--yellow);border:1px solid #e4c87a;background:#fff8df}
+.deact-btn:hover{color:var(--white);border-color:var(--yellow);background:var(--yellow)}
+.chief-btn{color:var(--blue);border:1px solid var(--line-dark);background:var(--blue-soft)}
+.chief-btn:hover{color:var(--white);border-color:var(--blue);background:var(--blue)}
+.bin-btn:focus-visible,.deact-btn:focus-visible,.chief-btn:focus-visible{outline:3px solid rgba(198,32,50,.30);outline-offset:2px}
+.bin-btn svg,.deact-btn svg,.chief-btn svg{width:14px;height:14px}
+.corner{position:absolute;top:6px;right:6px;z-index:2}
+.info-wrap{position:relative;display:inline-flex}
+.info-btn{width:26px;height:26px;min-height:26px;padding:0;display:grid;place-items:center;border-radius:50%;border:1px solid var(--line-dark);background:var(--white);color:var(--blue);font-size:.85rem;font-weight:800;font-style:italic;cursor:pointer;line-height:1;transition:all .16s ease}
+.info-btn:hover{background:var(--blue);color:var(--white);border-color:var(--blue)}
+.info-pop{position:absolute;top:calc(100% + 8px);right:0;z-index:50;min-width:198px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--white);box-shadow:var(--shadow);display:grid;gap:7px;transition:opacity .18s ease,transform .18s ease,visibility .18s}
+.info-pop.hide{display:grid!important;opacity:0;visibility:hidden;transform:translateY(-6px);pointer-events:none}
+.info-item{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:650;color:var(--ink);white-space:nowrap}
+.info-item .dot{flex:none}
+.skeleton{background:linear-gradient(90deg,#eef3f8 25%,#dfe7ef 37%,#eef3f8 63%);background-size:400% 100%;animation:skeleton 1.4s ease infinite;border-radius:8px}
+@keyframes skeleton{0%{background-position:100% 50%}100%{background-position:0 50%}}
+.readiness{display:flex;align-items:center;gap:14px;margin:0 0 14px}
+.ring{position:relative;width:110px;height:110px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--line);stroke-width:12}
+.ring-fg{fill:none;stroke:var(--green);stroke-width:12;stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset .9s ease,stroke .4s ease}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+#ringPct{font-size:1.45rem;font-weight:900;color:var(--navy)}
+.ring-center small{color:var(--muted);font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.readiness-legend{color:var(--muted);font-size:.75rem;font-weight:700;line-height:1.5}
+.modal-actions{display:flex;gap:10px;margin-top:16px}
+.modal-actions button{flex:1}
+.team-card{position:relative;overflow:hidden;border:1px solid var(--line);border-left:8px solid var(--line);border-radius:11px;background:var(--blue-pale);box-shadow:var(--shadow-soft)}
+.team-card.status-g{background:#d9ecdf;border-color:#a7d2b8;border-left-color:var(--green)}
+.team-card.status-y{background:#f6e8c3;border-color:#e4c87a;border-left-color:var(--yellow)}
+.team-card.status-r{background:#f3d3d8;border-color:#ecb3ba;border-left-color:var(--red)}
+.team-card.status-k{background:#e1e4e8;border-color:#afbac4;border-left-color:var(--black)}
+.team-card.status-none{background:var(--blue-pale);border-color:var(--line);border-left-color:var(--line)}
+.team-card-tall{min-height:128px}
+.team-toggle{width:100%;min-height:68px;padding:10px;border:0;border-radius:0;background:transparent;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--navy)}
+.team-card-tall .team-toggle{min-height:128px}
+.team-toggle:hover{background:rgba(255,255,255,.28)}
+.team-text{display:block;min-width:0}
+.team-name{display:block;font-size:.9rem;font-weight:800;color:var(--navy)}
+.arrow{display:grid;flex:none;place-items:center;width:28px;height:28px;color:var(--red);border-radius:50%;background:var(--red-soft);font-size:1.2rem;transition:transform .22s ease}
+.team-card.open .arrow{transform:rotate(180deg)}
+.details{display:grid;grid-template-rows:0fr;min-height:0;transition:grid-template-rows .22s ease}
+.details-inner{min-height:0;overflow:hidden;border-top:1px solid transparent;background:rgba(255,255,255,.55);padding:0 12px;opacity:0;transform:translateY(-4px);transition:opacity .22s ease,transform .22s ease,padding .22s ease,border-top-color .22s ease}
+.user-box.open .details,.team-card.open .details{grid-template-rows:1fr}
+.user-box.open .details-inner,.team-card.open .details-inner{opacity:1;transform:none;padding:12px;border-top-color:rgba(8,35,63,.08)}
+.user-box{position:relative;overflow:hidden;padding:0;border:1px solid var(--line);border-left:8px solid var(--blue);border-radius:11px;background:var(--white);box-shadow:var(--shadow-soft)}
+.user-box.status-g{border-left-color:var(--green)}
+.user-box.status-y{border-left-color:var(--yellow)}
+.user-box.status-r{border-left-color:var(--red)}
+.user-box.status-k{border-left-color:var(--black)}
+.user-box .user-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:68px;padding:12px 44px 12px 12px;color:var(--navy);border:0;border-radius:0;background:var(--white);text-align:left}
+.user-box .user-toggle:hover{background:var(--blue-pale)}
+.user-box .user-toggle strong{display:block;font-size:.98rem;color:var(--navy)}
+.user-box .user-toggle small{display:block;font-size:.72rem;color:var(--muted);font-weight:700;margin-top:2px}
+/* Caixas de estado: nome completo (quebra linhas) com letra maximizada para caber nas caixas atuais */
+.my-status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.my-status .mini{display:flex;align-items:flex-start;gap:6px;min-height:44px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--white);font-size:.8rem;font-weight:800}
+.my-status .mini strong{flex:1;min-width:0;white-space:normal;overflow:visible;text-overflow:clip;color:var(--navy);font-size:.8rem;line-height:1.15}
+.my-status .mini span{display:flex;flex:none;flex-direction:row;align-items:center;gap:4px;color:var(--muted);font-size:.7rem;line-height:1;white-space:nowrap;font-weight:700}
+.my-status .mini.status-g{border-color:#a7d2b8;background:#edf8f0}
+.my-status .mini.status-y{border-color:#e4c87a;background:#fff8df}
+.my-status .mini.status-r{border-color:#ecb3ba;background:#fff0f2}
+.my-status .mini.status-k{border-color:#afbac4;background:#edf0f2}
+.op-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:8px}
+.op-chip{display:flex;align-items:center;gap:5px;padding:5px 6px;border:1px solid var(--line);border-radius:6px;background:var(--white);font-size:.72rem;font-weight:800;color:var(--navy)}
+.op-chip.status-g{border-color:#a7d2b8;background:#edf8f0}
+.op-chip.status-y{border-color:#e4c87a;background:#fff8df}
+.op-chip.status-r{border-color:#ecb3ba;background:#fff0f2}
+.op-chip.status-k{border-color:#afbac4;background:#edf0f2}
+.op-chip .dot{flex:none}
+.dot{width:8px;height:8px;border-radius:50%}
+.dg{background:var(--green)}
+.dy{background:var(--yellow)}
+.dr{background:var(--red)}
+.dk{background:var(--black)}
+.status-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:26px 0 8px}
+.status-head .status-title{margin:0}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.panel-head h2{margin:0}
+.status-title{position:relative;padding-left:10px;font-size:1.05rem}
+.status-title::before{position:absolute;top:3px;bottom:3px;left:0;width:3px;content:"";border-radius:2px;background:var(--red)}
+.mine-list{display:block;margin-top:10px}
+.mine-list .mine-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:9px 3px;border-bottom:1px solid var(--line)}
+.mine-list .mine-row:first-child{border-top:1px solid var(--line)}
+.mine-list .mine-row strong{min-width:0;color:var(--navy);font-size:.79rem;font-weight:800;line-height:1.2}
+.mine-list .mine-row small{flex:none;font-size:.69rem;line-height:1.2;text-align:right;white-space:nowrap}
+.manage-divider{position:relative;display:flex;align-items:center;gap:10px;margin:28px 0 18px;color:var(--muted);font-size:.68rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+.manage-divider::before,.manage-divider::after{height:1px;content:"";background:var(--line)}
+.manage-divider::before{width:30px;height:3px;border-radius:2px;background:var(--red)}
+.manage-divider::after{flex:1}
+.manage-group{overflow:hidden;margin-top:15px;border:1px solid var(--line);border-radius:11px;background:var(--white);box-shadow:var(--shadow-soft)}
+.manage-group summary{display:flex;align-items:center;justify-content:space-between;min-height:54px;padding:12px 14px;list-style:none;cursor:pointer;user-select:none}
+.manage-group summary::-webkit-details-marker{display:none}
+.manage-group summary::after{display:grid;flex:none;place-items:center;width:27px;height:27px;content:"⌄";color:var(--red);border-radius:50%;background:var(--red-soft);font-size:1.15rem;line-height:1;transition:transform .22s ease}
+.manage-group summary:hover{background:var(--blue-pale)}
+.manage-group[open] summary{border-bottom:1px solid var(--line);background:var(--blue-pale)}
+.manage-group[open] summary::after{transform:rotate(180deg)}
+.manage-group.closing summary::after{transform:rotate(0deg)}
+.manage-group summary h3{font-size:.96rem}
+.manage-content{padding:15px 13px;background:var(--white)}
+.manage-content .list{margin-top:13px}
+.all-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.all-head .muted{margin:0;font-size:.75rem}
+.all-list{display:block;margin-top:12px}
+.all-list .all-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;padding:0 0 8px;border-bottom:1px solid var(--line)}
+.all-list .all-row:last-child{margin-bottom:0;border-bottom:0}
+.all-list .all-label{display:flex;align-items:center;gap:8px;flex:1;min-width:0;cursor:pointer}
+.all-list .all-check{flex:none;width:19px;min-width:19px;height:19px;min-height:19px;margin:0;accent-color:var(--red);cursor:pointer}
+.all-list .all-text{min-width:0;flex:1;color:var(--ink);font-size:.75rem;line-height:1.3}
+.all-list .all-text strong{color:var(--navy);font-size:inherit;font-weight:800;display:block}
+.all-list .all-text small{font-size:.68rem;display:block}
+.all-list .all-label:has(.all-check:checked) .all-text strong{color:var(--red-dark)}
+.batch-group{margin-top:12px}
+.batch-summary-text{display:flex;flex-direction:column;gap:2px}
+.batch-summary-text small{color:var(--muted);font-size:.72rem;font-weight:800}
+.batch-content{padding:0;background:var(--white)}
+.batch-list{display:block}
+.batch-choice{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:10px 13px;border-bottom:1px solid var(--line);cursor:pointer}
+.batch-choice:last-child{border-bottom:0}
+.batch-choice:has(input:checked){background:var(--blue-soft)}
+.batch-choice strong{color:var(--navy);font-size:.82rem}
+.batch-choice input{width:20px;min-width:20px;height:20px;min-height:20px;margin:0;accent-color:var(--red);cursor:pointer}
+.date-toggle{display:flex;align-items:center;gap:10px;margin:14px 2px 0;color:var(--navy);font-size:.82rem;font-weight:800;cursor:pointer}
+.date-toggle input{width:17px;min-width:17px;height:17px;min-height:17px;margin:0;accent-color:var(--red)}
+.custom-date{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--blue-pale)}
+#customDateWrap:not(.hide){animation:expandIn .22s ease}
+#batchSubmit{margin-top:14px}
+#batchSubmit:disabled{cursor:not-allowed;opacity:.55;box-shadow:none}
+.mine-group{margin-top:22px}
+.mine-content{padding:12px 13px 10px}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.pager:not(.hide){animation:expandIn .22s ease}
+.pager span{color:var(--muted);font-size:.74rem;font-weight:800}
+.pager .secondary{min-height:36px;padding:7px 10px;font-size:.72rem}
+.pager.hide{display:none!important}
+.header-content{position:relative;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;width:100%;max-width:760px;margin:auto}
+.header-text{min-width:0}
+.rsb-emblema{display:block;flex:0 0 auto;width:150px;height:150px;object-fit:contain;border:0;border-radius:0;background:transparent;box-shadow:none}
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(8,35,63,.6);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;animation:modalFadeIn .2s ease}
+.modal-overlay.hide{display:none}
+.modal-content{background:var(--white);border-radius:14px;max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(8,35,63,.3);animation:modalSlideIn .25s ease}
+#passModal .modal-content,#confirmModal .modal-content{max-width:430px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line);flex-shrink:0}
+.modal-header h3{margin:0;font-size:1.1rem;color:var(--navy)}
+.modal-close{width:34px;height:34px;min-height:34px;padding:0;border:1px solid var(--line);border-radius:8px;background:var(--white);color:var(--muted);font-size:1.4rem;cursor:pointer;display:grid;place-items:center;transition:all .15s ease}
+@property --p{syntax:'<number>';initial-value:0;inherits:false}
+.ring{position:relative;border-radius:50%;background:conic-gradient(var(--col) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;transition:--p .9s ease}
+.ring::before{content:"";position:absolute;inset:var(--sw);border-radius:50%;background:var(--white)}
+.ring-txt{position:relative;font-weight:700;color:var(--navy)}  
+.manual-btn{width:40px;height:40px;min-height:40px;padding:0;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--white);font-size:1.15rem;line-height:1;transition:all .15s ease}
+.manual-btn:hover{background:var(--blue-soft);border-color:var(--blue)}
+.modal-close:hover{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+.modal-body{padding:22px;overflow-y:auto;flex:1}
+.modal-body h4{margin:20px 0 8px;color:var(--navy);font-size:.92rem}
+.modal-body h4:first-child{margin-top:0}
+.modal-body p{margin:0 0 10px;color:var(--ink);font-size:.85rem;line-height:1.5}
+.modal-body ul,.modal-body ol{margin:8px 0 14px;padding-left:20px}
+.modal-body li{margin:4px 0;font-size:.85rem;line-height:1.45}
+.modal-body code{background:var(--blue-pale);padding:1px 5px;border-radius:4px;font-size:.8rem}
+.modal-body pre{background:var(--blue-pale);border:1px solid var(--line);border-radius:8px;padding:10px;overflow-x:auto;font-size:.75rem;line-height:1.4;margin:0 0 12px}
+.modal-body table{width:100%;border-collapse:collapse;margin:10px 0 14px}
+.modal-body th,.modal-body td{border:1px solid var(--line);padding:7px;text-align:left;vertical-align:top;font-size:.82rem}
+.modal-body th{background:var(--blue-soft);color:var(--navy)}
+.note,.warning,.ok{border-radius:10px;padding:12px 13px;margin:12px 0;line-height:1.5;font-size:.84rem}
+.note{background:var(--blue-soft);border-left:5px solid var(--blue)}
+.warning{background:var(--red-soft);border-left:5px solid var(--red)}
+.ok{background:#e7f4ec;border-left:5px solid var(--green)}
+.move-toggle{width:100%;min-height:auto;padding:0;border:0;border-radius:0;background:none;text-align:left;color:var(--navy);font-weight:800}
+.move-toggle:hover{background:none;color:var(--blue)}
+.move-toggle small{display:block;font-size:.7rem;color:var(--muted);font-weight:700;margin-top:2px}
+.move-assign{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+.assign-list{display:grid;grid-template-columns:1fr;gap:6px}
+.assign-item{display:flex;align-items:center;gap:6px;padding:6px;border:1px solid var(--line);border-radius:6px;background:var(--white);font-size:.74rem;font-weight:700;color:var(--navy)}
+.assign-item input{width:16px;height:16px;min-width:16px;accent-color:var(--red)}
+.team-filter-chip{display:flex;align-items:center;gap:5px;min-width:0;padding:5px 6px;border:1px solid var(--line);border-radius:8px;background:var(--white);font-size:.74rem;font-weight:800;color:var(--navy);cursor:pointer}
+.team-filter-chip:has(input:checked){background:var(--blue-soft);border-color:var(--blue)}
+.team-filter-chip input{width:15px;height:15px;min-width:15px;margin:0;accent-color:var(--red);cursor:pointer;flex:none}
+.team-filter-chip span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.action-buttons{margin-top:24px;padding-top:16px;border-top:1px solid var(--line);display:grid;gap:10px;justify-items:center}
+.action-buttons .secondary{min-height:40px;padding:8px 20px;font-size:.82rem}
+.toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:8px;max-width:90vw;pointer-events:none}
+.toast{padding:12px 16px;border-radius:9px;font-size:.88rem;font-weight:700;box-shadow:var(--shadow);animation:toastIn .25s ease;pointer-events:auto}
+.toast.ok{background:#e7f4ec;color:#155b39;border:1px solid #aad3bb}
+.toast.err{background:var(--red-soft);color:#8c1522;border:1px solid #edbac1}
+.toast.info{background:var(--blue-soft);color:var(--navy);border:1px solid var(--line)}
+.offline-banner{position:fixed;top:0;left:0;right:0;z-index:1500;padding:8px;text-align:center;background:#fff3cd;color:#856404;font-size:.85rem;font-weight:700;display:none}
+.offline-banner.show{display:block}
+.ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.turno-card{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--card);cursor:pointer}
+.turno-card:active{transform:scale(.98)}
+.ov-company{display:flex;flex-direction:column;align-items:center;gap:4px}
+@keyframes expandIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes modalFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalSlideIn{from{opacity:0;transform:translateY(20px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,-20px)}to{opacity:1;transform:translate(-50%,0)}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media(max-width:640px){
+body{font-size:16px}
+header{padding:18px 14px 16px}
+h1{font-size:2.2rem}
+header p{font-size:.87rem}
+main{padding:15px 10px 34px}
+.card{padding:16px;border-top-width:4px;border-radius:12px}
+h2{font-size:1.5rem}
+h3{font-size:1rem}
+.head{margin-bottom:17px;padding-bottom:12px}
+.num{font-size:1.3rem}
+.tabs{gap:4px;margin-bottom:18px;padding:4px;border-radius:10px}
+.tab{min-height:42px;padding:7px 4px;font-size:.71rem}
+input,select{min-height:48px;padding:10px 11px}
+.primary{min-height:48px}
+.row{align-items:flex-start;padding:10px 40px 10px 10px;border-left-width:3px;border-radius:9px}
+.row strong{font-size:.82rem}
+.row small{font-size:.70rem}
+.team-toggle{min-height:60px;padding:9px}
+.team-card-tall .team-toggle{min-height:112px}
+.team-name{font-size:.8rem}
+.team-card-tall{min-height:112px}
+.user-box .user-toggle{min-height:62px;padding:10px 42px 10px 10px}
+.user-box .user-toggle strong{font-size:.9rem}
+.status-head{margin-top:22px}
+.status-title{font-size:1rem}
+.my-status{gap:5px}
+.my-status .mini{gap:4px;padding:6px}
+.my-status .mini strong{font-size:.74rem}
+.my-status .mini span{font-size:.66rem}
+.mine-list .mine-row{gap:8px;padding:8px 2px}
+.mine-list .mine-row strong{font-size:.75rem}
+.mine-list .mine-row small{font-size:.66rem}
+.manage-divider{margin:23px 0 14px;font-size:.63rem}
+.manage-divider::before{width:24px}
+.manage-group{margin-top:12px;border-radius:10px}
+.manage-group summary{min-height:52px;padding:10px 11px}
+.manage-group summary h3{font-size:.92rem}
+.manage-content{padding:13px 11px}
+.all-head{align-items:flex-start;flex-direction:column;gap:8px}
+.all-list .all-text{font-size:.71rem;line-height:1.35}
+.all-list .all-text small{font-size:.63rem}
+.all-list .all-check{width:20px;min-width:20px;height:20px;min-height:20px}
+.batch-group{margin-top:12px}
+.batch-summary-text small{font-size:.68rem}
+.batch-choice{min-height:46px;padding:9px 11px}
+.batch-choice strong{font-size:.77rem}
+#batchSubmit{margin-top:12px}
+.rsb-emblema{width:96px;height:96px}
+.ring{width:96px;height:96px}
+#ringPct{font-size:1.2rem}
+}
+@media(max-width:380px){
+header{padding-inline:14px}
+h1{font-size:1.95rem}
+.card{padding:13px}
+.tab{font-size:.65rem}
+.my-status .mini strong{font-size:.7rem}
+.my-status .mini span{font-size:.62rem}
+.team-name{font-size:.74rem}
+.op-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+#printArea {
+  display: none;
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+
+@media print {
+  body > * { display: none !important; }
+  #printArea {
+    display: block !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  @page { margin: 1.5cm; size: A4; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+}
+   .ficha-telef-check,.ficha-only-t-check{width:16px;min-width:16px;height:16px;min-height:16px;padding:0;margin:0;accent-color:var(--red);cursor:pointer;flex:none}
+  label:has(.ficha-telef-check),label:has(.ficha-only-t-check){display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:700;color:var(--navy);white-space:nowrap;cursor:pointer}
+
+/* ===== Indicador dinâmico dos separadores ===== */
+.tabs { position: relative; }
+#tabGlide {
+  position: absolute;
+  top: -20px;              /* 20px (margem do .head) + 2px (centrar o traço de 4px) */
+  left: 0;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--red);
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 0 8px rgba(198,32,50,.35);
+  transition: left .45s cubic-bezier(.3, 1.4, .4, 1), width .45s cubic-bezier(.3, 1.4, .4, 1);
+}
+@media (prefers-reduced-motion: reduce) { #tabGlide { transition: none; } }
+
+/* Esconde o risquinho vermelho antigo do cabeçalho */
+.head::after { display: none !important; }
+
+/* ===== Desativar vermelho, consistente em toda a app ===== */
+.deact-btn {
+  color: var(--red) !important;
+  border-color: var(--red) !important;
+  background: #f9e9eb !important;
+}
+.deact-btn svg { stroke: currentColor; }
+
+details summary::-webkit-details-marker { display: none; }
+details summary { list-style: none; }
+details summary::after {
+  content: "▾";
+  margin-left: auto;
+  transition: transform .2s ease;
+  font-size: .9rem;
+  color: var(--muted);
+}
+details[open] summary::after { transform: rotate(180deg); }
+details summary:hover { background: rgba(18,97,160,.05); }
+
+/* ===== Menu da ficha: item de perigo ===== */
+#fichaMenu .mi-danger{color:var(--red)!important;border-color:var(--red)!important}
+#fichaMenu .mi-danger:hover{color:var(--white)!important;border-color:var(--red-dark)!important;background:var(--red)!important}
+
+/* ===== Modal de histórico de curso ===== */
+.curso-hist-list{display:grid;gap:4px;max-height:180px;overflow:auto;margin:8px 0;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--blue-pale)}
+.curso-hist-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 6px;border-radius:5px;font-size:.78rem;color:var(--navy)}
+.curso-hist-item.ativo{background:var(--white);border:1px solid var(--line);font-weight:800}
+.curso-hist-item small{color:var(--muted);font-weight:700;font-size:.68rem} 
+
+  /* ===== Escada de z-index dos modais ===== */
+#cursoHistModal { z-index: 1150 !important; }
+#cursoModal      { z-index: 1250 !important; }
+#passModal, #confirmModal { z-index: 1300 !important; }
+
+  
+</style>
+  
+<style>
+  /* ===== Modais consistentes (cartão sólido e legível) ===== */
+  .modal-overlay .modal {
+    background: #fff;
+    color: #111;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.3);
+  }
+  .modal-overlay .modal h2 { margin: 0 0 12px; }
+  /* Confirmações (palavra-passe / confirmar) sempre por cima de qualquer modal */
+  #passModal, #confirmModal { z-index: 1300; }
+</style>
+</head>
+<body>
+<div id="offlineBanner" class="offline-banner" role="alert">⚠️ Sem ligação à internet. Algumas ações podem falhar.</div>
+<div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+<div id="announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+<header>
+<div class="header-content">
+<div class="header-text"><h1 id="appTitle">CID</h1><p id="appSub">EQUIPAS DE RESGATE POR CORDAS</p></div>
+<img class="rsb-emblema" src="icons/icon-512.png" alt="Emblema do Regimento de Sapadores Bombeiros de Lisboa">
+</div>
+</header>
+
+<main>
+<section id="auth" class="card">
+<div id="login">
+<h2>Entrar</h2>
+<p class="muted">Entra para registar a tua instrução.</p>
+<form id="lf">
+<div class="field"><label>E-mail<input id="e" type="email" autocomplete="email" required></label></div>
+<div class="field"><label>Palavra-passe<input id="p" type="password" autocomplete="current-password" required></label></div>
+<button class="primary" type="submit">Entrar</button>
+</form>
+<p class="muted" style="font-size:.74rem;margin-top:10px">Esqueceste a palavra-passe? Pede ao Chefe das Cordas para te reenviar o link.</p>
+</div>
+<div id="firstAccess" class="hide">
+  <h2>Primeiro acesso</h2>
+  <p class="muted">Define a tua palavra-passe para entrares na app.</p>
+  <form id="faForm">
+    <div class="field"><label>Nova palavra-passe<input id="faPass" type="password" minlength="6" required></label></div>
+    <button class="primary" type="submit">Definir e entrar</button>
+  </form>
+  <p id="fam" class="msg" role="alert"></p>
+</div>  
+<div id="am" class="msg" role="alert"></div>
+</section>
+
+<section id="app" class="hide">
+<div class="card">
+<div class="head">
+  <div>
+    <p id="who" class="num">—</p>
+    <p id="role" class="role"></p>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+    <button id="out" class="logout" type="button">Sair</button>
+    <button id="manualBtn" class="manual-btn" type="button" aria-label="Abrir manual" title="Manual">📖</button>
+  </div>
+</div>
+<nav id="tabs" class="tabs">
+<button class="tab on" data-x="reg" type="button">Registar</button>
+<button class="tab" data-x="team" type="button">Equipa</button>
+<button id="mt" class="tab hide" data-x="manage" type="button">Gestão</button>
+<button id="ct-ov" class="tab cordas-tab tab-wide hide" data-x="ov">Visão Geral</button>
+<button id="ct-mv" class="tab cordas-tab hide" data-x="tu">Turnos</button>
+<button id="ct-tu" class="tab cordas-tab hide" data-x="mv">Manobras</button>
+<button id="ct-au" class="tab cordas-tab hide" data-x="au">Relatórios e Auditoria</button>
+</nav>
+
+<section id="ov" class="panel"></section>
+<section id="mv" class="panel"></section>
+<section id="tu" class="panel"></section>
+<section id="au" class="panel"></section>
+<section id="reg" class="panel on">
+<h2>Registar manobra</h2>
+<form id="rf">
+<div class="field"><select id="move" required aria-label="Manobra efetuada"></select></div>
+<button class="primary" type="submit">+ Registar manobra</button>
+</form>
+<div id="rm" class="msg" role="status"></div>
+<div class="status-head">
+<h3 class="status-title">Estado das manobras</h3>
+<div class="legend-slot"></div>
+</div>
+<div id="myStatus" class="my-status"></div>
+<details class="manage-group mine-group">
+<summary>
+<div class="batch-summary-text">
+<h3>Os meus registos</h3>
+<small id="mineCount">0 registos</small>
+</div>
+</summary>
+<div class="manage-content mine-content">
+<div id="mine" class="mine-list"></div>
+<div id="minePager" class="pager hide">
+<button id="minePrev" class="secondary" type="button">Anterior</button>
+<span id="minePageInfo">Página 1 de 1</span>
+<button id="mineNext" class="secondary" type="button">Seguinte</button>
+</div>
+</div>
+</details>
+</section>
+
+<section id="team" class="panel">
+<details class="manage-group" style="margin-top:0">
+<summary><h3>Filtrar operacionais</h3></summary>
+<div class="manage-content" style="padding:10px 12px">
+<div id="teamUserFilter" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px"></div>
+<div style="display:flex;justify-content:flex-end;margin-top:10px">
+<button id="clearTeamFilter" class="secondary" type="button" style="min-height:36px;padding:7px 12px;font-size:.72rem">Limpar seleção</button>
+</div>
+</div>
+</details>
+<div class="panel-head" style="margin-top:18px">
+<h2>Equipa</h2>
+<div class="legend-slot"></div>
+</div>
+<div class="readiness">
+<div class="ring">
+<svg viewBox="0 0 120 120" aria-hidden="true">
+<circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+<circle class="ring-fg" id="ringFg" cx="60" cy="60" r="52"></circle>
+</svg>
+<div class="ring-center"><span id="ringPct">0%</span><small>Prontidão</small></div>
+</div>
+<div id="teamReadiness" class="readiness-legend"></div>
+</div>
+<div id="teams" class="list"></div>
+</section>
+
+<section id="manage" class="panel">
+<h3>Adicionar registos</h3>
+<form id="cf">
+<details class="manage-group batch-group">
+<summary>
+<div class="batch-summary-text">
+<h3>Operacionais</h3>
+<small id="batchUsersCount">0 selecionados</small>
+</div>
+</summary>
+<div class="manage-content batch-content"><div id="batchUsers" class="batch-list"></div></div>
+</details>
+<details class="manage-group batch-group">
+<summary>
+<div class="batch-summary-text">
+<h3>Manobras</h3>
+<small id="batchMovesCount">0 selecionadas</small>
+</div>
+</summary>
+<div class="manage-content batch-content"><div id="batchMoves" class="batch-list"></div></div>
+</details>
+<label class="date-toggle"><input id="customDateToggle" type="checkbox"><span>Escolher data do registo</span></label>
+<div id="customDateWrap" class="field custom-date hide"><label>Data do registo<input id="customDate" type="date"></label></div>
+<button id="batchSubmit" class="primary" type="submit" disabled>Seleciona operacionais e manobras</button>
+</form>
+<div id="gm" class="msg" role="status"></div>
+<div class="manage-divider" aria-hidden="true">Gestão da equipa</div>
+<details class="manage-group">
+<summary><h3>Utilizadores</h3></summary>
+<div class="manage-content">
+<div style="display:flex;justify-content:flex-end;margin-bottom:10px"><div class="legend-slot"></div></div>
+<div id="users" class="list"></div>
+</div>
+</details>
+<details class="manage-group hide">
+<summary><h3>Manobras</h3></summary>
+<div class="manage-content">
+<form id="mf">
+<div class="field"><input id="newmove" placeholder="Nome da manobra" required></div>
+<button class="secondary" type="submit">+ Adicionar à lista</button>
+</form>
+<div id="moves" class="list"></div>
+</div>
+</details>
+<details class="manage-group">
+<summary><h3>Localizar registo</h3></summary>
+<div class="manage-content">
+<div class="field"><label>Operacional<select id="findUser"><option value="">Todos</option></select></label></div>
+<div class="field"><label>Manobra<select id="findMove"><option value="">Todas</option></select></label></div>
+<div class="field"><label>Data<input id="findDate" type="date"></label></div>
+<div class="all-head" style="margin-top:14px">
+<span id="findSummary" class="muted">Seleciona operacional e ou manobra e ou data para localizar registos.</span>
+<button id="deleteSelected" class="bin-btn hide" type="button" disabled aria-label="Eliminar selecionados" title="Eliminar selecionados">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+</button>
+</div>
+<div id="all" class="all-list"></div>
+<div id="allPager" class="pager hide">
+<button id="allPrev" class="secondary" type="button">Anterior</button>
+<span id="allPageInfo">Página 1 de 1</span>
+<button id="allNext" class="secondary" type="button">Seguinte</button>
+</div>
+</div>
+</details>
+<details class="manage-group hide">
+<summary><h3>📑 Relatório de Auditoria</h3></summary>
+<div class="manage-content">
+<div class="field"><label>Mês<input id="auditMonth" type="month"></label></div>
+<button id="auditGen" class="secondary" type="button">Gerar relatório</button>
+<button id="auditCsv" class="secondary" type="button">⬇ Exportar CSV</button>
+<div id="auditReport" style="margin-top:12px"></div>
+</div>
+</details>
+</section>
+</div>
+</section>
+
+<div id="manualCordasModal" class="modal-overlay hide" role="dialog" aria-modal="true" aria-labelledby="manualCordasTitle">
+<div class="modal-content">
+<div class="modal-header">
+<h3 id="manualCordasTitle">📕 Manual do Chefe das Cordas</h3>
+<button class="modal-close" type="button" aria-label="Fechar" data-close-modal="manualCordasModal">×</button>
+</div>
+<div class="modal-body">
+<h4>2. Visão Geral</h4>
+<ul>
+<li>O anel grande é a prontidão da <strong>Companhia</strong>; ao lado, o anel do <strong>Teleférico</strong>.</li>
+<li>Cada turno aparece num cartão com o anel e o distintivo <strong>T1…T4</strong> no canto. Toca num turno para ver o detalhe das manobras desse turno.</li>
+<li>Toca no anel do <strong>Teleférico</strong> para ver as posições 1/2/T/VE de cada operacional.</li>
+<li>A média do teleférico é ponderada: <strong>Posição 1 = 50%</strong>; as restantes dividem os outros 50%.</li>
+<li>O <strong>i</strong> no canto mostra a legenda do código de cores.</li>
+</ul>
+<h4>3. Turnos</h4>
+<ul>
+<li>Cada turno é uma faixa com o anel à esquerda e os cartões dos operacionais à direita.</li>
+<li><strong>★</strong> no canto = chefe de turno; <strong>T</strong> = curso de teleférico; <strong>ST</strong> = só teleférico.</li>
+<li>Toca num operacional para abrir a <strong>ficha</strong> (cursos, teleférico e ações no menu <strong>☰</strong>).</li>
+<li>O bloco <strong>Externos</strong> lista operacionais fora da equipa (outros quartéis ou CID): por defeito mostra os que têm RT; <em>Mostrar todos</em> revela os restantes. Cada cartão indica as 3 letras do quartel e o turno de origem.</li>
+<li><strong>Validade dos cursos RU · RA</strong>: mostra os 16 cursos mais antigos — <strong>preto</strong> (caducado), <strong>vermelho</strong> (≤ 1 ano para caducar), <strong>amarelo</strong> (≤ 2 anos), <strong>verde</strong> (> 2 anos). Quem tem RA preenchido não mostra o RU, porque o RA o substitui.</li>
+<li><strong>Adicionar operacional</strong>: cria operacionais (recebem link de primeiro acesso por e-mail) ou externos de outros quartéis.</li>
+</ul>
+<h4>4. Ficha do operacional</h4>
+<ul>
+<li><strong>Cursos RA / RU / RT</strong>: toca num curso para abrir o histórico — vês a data ativa (a que conta para a validade), todas as revalidações anteriores e podes <strong>adicionar nova revalidação</strong>, <strong>editar</strong> ou <strong>eliminar</strong> (todas as ações exigem palavra-passe).</li>
+<li>Regras: RA e RT só se definem pela primeira vez com RU preenchido; datas de RA/RT nunca podem ser anteriores ao RU; revalidações e limpezas são sempre permitidas (validade 4 anos).</li>
+<li><strong>RT com data</strong> atribui automaticamente ao teleférico; <strong>RT vazio</strong> retira.</li>
+<li>Menu <strong>☰</strong>: trocar de turno, alterar número (com verificação de disponibilidade), reenviar link, ★ tornar chefe de turno, tornar externo e desativar. Em externos: turno de origem, importar para a CID e remover da CID.</li>
+<li>A desativação mantém o histórico; **só o Chefe das Cordas** pode reativar (Auditoria ↺ ou ficha).</li>
+</ul>
+<h4>5. Manobras</h4>
+<ul>
+<li>Criar, renomear, desativar e reativar manobras.</li>
+<li>A manobra <strong>Resgate em Teleférico</strong> é especial: não pode ser renomeada nem desativada.</li>
+</ul>
+<h4>6. Relatórios e Auditoria</h4>
+<ul>
+<li><strong>Relatório</strong> mensal ou anual com tendência de prontidão, manobras em risco e operacionais em risco; <strong>Imprimir / PDF</strong>.</li>
+<li><strong>Auditoria</strong> em dois modos: <em>Manobras</em> (registos efetuados) e <em>Outros Registos</em> (criações, desativações, mudanças de número ou turno, eliminações). Filtros por período, turno, manobra e número.</li>
+<li>Registos introduzidos com data anterior aparecem com <strong>⚠</strong> na coluna <em>Registado</em>; a coluna <em>Por</em> indica quem efetuou cada ação.</li>
+<li>Podes <strong>eliminar registos</strong> e <strong>reativar operacionais</strong> diretamente da auditoria.</li>
+<li><strong> CSV</strong> exporta a auditoria; <strong>📦 Backup</strong> exporta tudo em JSON — guarda-o em local seguro.</li>
+</ul>
+<h4>7. Transferir chefia</h4>
+<ol>
+<li>Toca no teu nome no topo da aplicação.</li>
+<li>Indica o nome e o e-mail do sucessor e confirma com a tua palavra-passe.</li>
+<li>O sucessor recebe o link de primeiro acesso por e-mail; a tua conta fica desativada.</li>
+</ol>
+<h4>8. Permissões</h4>
+<table>
+<thead><tr><th>Papel</th><th>Vê / faz</th></tr></thead>
+<tbody>
+<tr><td>Operacional</td><td>Regista as suas manobras; vê o seu estado e o da equipa.</td></tr>
+<tr><td>Chefe de turno</td><td>Regista em lote no seu turno; gere utilizadores do turno; localiza/elimina registos da equipa.</td></tr>
+<tr><td>Chefe das Cordas</td><td>Tudo: todos os turnos, manobras, relatórios, auditoria e backups.</td></tr>
+</tbody>
+</table>
+<h4>9. Código de cores e cursos</h4>
+<table>
+<thead><tr><th>Cor</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td>Verde</td><td>até 2 meses</td></tr>
+<tr><td>Amarelo</td><td>até 5 meses</td></tr>
+<tr><td>Vermelho</td><td>até 8 meses</td></tr>
+<tr><td>Preto</td><td>mais de 8 meses ou sem registo</td></tr>
+</tbody>
+</table>
+<ul>
+<li>Cursos com validade de 4 anos; o RA substitui o RU quando preenchido.</li>
+<li>Nos blocos de validade de curso: preto = caducado, vermelho = ≤ 1 ano, amarelo = ≤ 2 anos, verde = > 2 anos.</li>
+</ul>
+<h4>10. Teleférico</h4>
+<ul>
+<li>Posições <strong>1, 2, T e VE</strong>; um operacional pode fazer várias posições no mesmo dia; tocar numa posição regista-a no dia.</li>
+<li>A vista mostra, por turno, a validade de cada posição e o bloco <strong>Validade do RT</strong> (16 mais antigos).</li>
+</ul> 
+</div>
+</div>
+</div>
+  
+<div id="passModal" class="modal-overlay hide" role="dialog" aria-modal="true" aria-labelledby="passModalTitle" data-simple-modal>
+<div class="modal-content">
+<div class="modal-header">
+<h3 id="passModalTitle">Confirmar operação</h3>
+<button id="passModalClose" class="modal-close" type="button" aria-label="Fechar">×</button>
+</div>
+<div class="modal-body">
+<p id="passModalDesc" style="margin:0 0 14px;font-size:.88rem;color:var(--ink)"></p>
+<div class="field">
+<label>Palavra-passe atual<input id="passModalInput" type="password" autocomplete="current-password"></label>
+</div>
+<div id="passModalMsg" class="msg" role="alert"></div>
+<button id="passModalConfirm" class="primary" type="button">Confirmar</button>
+</div>
+</div>
+</div>
+
+<div id="confirmModal" class="modal-overlay hide" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" data-simple-modal>
+<div class="modal-content">
+<div class="modal-header">
+<h3 id="confirmTitle">Confirmar</h3>
+<button id="confirmClose" class="modal-close" type="button" aria-label="Fechar">×</button>
+</div>
+<div class="modal-body">
+<p id="confirmMsg" style="margin:0;font-size:.88rem;color:var(--ink)"></p>
+<div class="modal-actions">
+<button id="confirmCancel" class="secondary" type="button">Cancelar</button>
+<button id="confirmOk" class="primary" type="button">Confirmar</button>
+</div>
+</div>
+</div>
+</div>
+
+<div id="manualOperacionalModal" class="modal-overlay hide" role="dialog" aria-modal="true" aria-labelledby="manualOperacionalTitle" data-simple-modal>
+<div class="modal-content">
+<div class="modal-header">
+<h3 id="manualOperacionalTitle">📘 Manual do Operacional</h3>
+<button class="modal-close" type="button" aria-label="Fechar" data-close-modal="manualOperacionalModal">×</button>
+</div>
+<div class="modal-body">
+<h4>1. Objetivo</h4>
+<p>A aplicação regista manobras de instrução e mostra o estado de cada operacional e da equipa.</p>
+<h4>2. Acesso</h4>
+<ul>
+<li><strong>Primeiro acesso:</strong>o Chefe das Cordas cria a tua conta e envia-te um link por e-mail para definires a palavra-passe. </li>
+<li><strong>Entrar:</strong> usar e-mail e palavra-passe.</li>
+<li><strong>Sair:</strong> tocar em “Sair” no topo da aplicação.</li>
+<li><strong>Manual:</strong> tocar no botão 📖 por baixo de Sair.</li>
+</ul>
+<h4>3. Registar manobra</h4>
+<ol>
+<li>No separador <strong>Registar</strong>, escolhe a manobra.</li>
+<li>Se for <strong>Resgate em Teleférico</strong>, escolhe a posição (1, 2, T ou VE).</li>
+<li>Toca em <strong>+ Registar manobra</strong>.</li>
+<li>A aplicação regista a manobra com a data do dia.</li>
+</ol>
+<div class="note">A mesma manobra só pode ser registada uma vez por dia pelo mesmo operacional.</div>
+<h4>4. Código de cores</h4>
+<table>
+<thead><tr><th>Cor</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td>Verde</td><td>até 2 meses</td></tr>
+<tr><td>Amarelo</td><td>até 5 meses</td></tr>
+<tr><td>Vermelho</td><td>até 8 meses</td></tr>
+<tr><td>Preto</td><td>mais de 8 meses ou sem registo</td></tr>
+</tbody>
+</table>
+<h4>5. Os meus registos</h4>
+<p>Na secção <strong>Os meus registos</strong> podes consultar o histórico das manobras que registaste.</p>
+<h4>6. Equipa</h4>
+<ul>
+<li>No separador <strong>Equipa</strong>, podes ver o estado das manobras da equipa.</li>
+<li>Podes usar <strong>Filtrar operacionais</strong> para analisar apenas alguns operacionais.</li>
+<li>Sem seleção, a equipa inteira é considerada.</li>
+<li>Ao tocar numa manobra, aparecem os números dos operacionais com a cor correspondente.</li>
+</ul>
+<h4>7. Resgate em Teleférico</h4>
+<ul>
+<li>Só aparece para registo se fores operacional de teleférico.</li>
+<li>Podes fazer várias posições no mesmo dia; cada posição tem a sua cor e dias.</li>
+<li>Na equipa, aparece sempre em último lugar.</li>
+<li>O seu estado usa apenas os operacionais de teleférico atribuídos.</li>
+</ul>
+<h4>8. Problemas comuns</h4>
+<ul>
+<li><strong>Não aparece nenhuma manobra:</strong> fala com o chefe de equipa.</li>
+<li><strong>Já está registada para hoje:</strong> já existe registo dessa manobra no próprio dia.</li>
+<li><strong>Não consigo entrar:</strong> confirma e-mail, palavra-passe e ligação à internet.</li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="manualChefeModal" class="modal-overlay hide" role="dialog" aria-modal="true" aria-labelledby="manualChefeTitle" data-simple-modal>
+<div class="modal-content">
+<div class="modal-header">
+<h3 id="manualChefeTitle">📗 Manual do Chefe de Equipa</h3>
+<button class="modal-close" type="button" aria-label="Fechar" data-close-modal="manualChefeModal">×</button>
+</div>
+<div class="modal-body">
+<h4>1. Funções</h4>
+<ul>
+<li>Registar as tuas manobras e registar em lote as do <strong>teu turno</strong>.</li>
+<li>Gerir os utilizadores do teu turno (desativar e conceder acesso à Gestão).</li>
+<li>Localizar e eliminar registos da tua equipa.</li>
+</ul>
+<h4>2. Registar</h4>
+<ol>
+<li>No separador <strong>Registar</strong>, escolhe a manobra e toca em <strong>+ Registar manobra</strong>.</li>
+<li>Se fores resgatador de teleférico (curso RT), a manobra <strong>Resgate em Teleférico</strong> aparece e pede a posição (1, 2, T ou VE).</li>
+<li>A mesma manobra só pode ser registada uma vez por dia pelo mesmo operacional.</li>
+</ol>
+<h4>3. Equipa</h4>
+<ul>
+<li>O anel mostra a prontidão do turno; usa <strong>Filtrar operacionais</strong> para analisar apenas alguns.</li>
+<li>Ao tocar numa manobra, aparecem os números dos operacionais com a cor do seu estado.</li>
+</ul>
+<h4>4. Gestão</h4>
+<ul>
+<li><strong>Adicionar registos</strong>: seleciona operacionais e manobras do teu turno e confirma o total. Opcionalmente, <strong>Escolher data do registo</strong> para repor uma data anterior — esses registos ficam marcados com ⚠ na auditoria.</li>
+<li><strong>Utilizadores</strong>: toca num utilizador para ver o estado das manobras; o botão vermelho desativa (o histórico mantém-se; **só o Chefe das Cordas** pode reativar); a <strong>★</strong> concede ou retira acesso à Gestão a operacionais do teu turno.</li>
+<li><strong>Localizar registo</strong>: pesquisa por operacional, manobra e data dentro da tua equipa; podes selecionar registos e eliminá-los com palavra-passe.</li>
+</ul>
+<div class="note">A criação e renomeação de manobras, os relatórios de comando, a auditoria global, o backup e a alteração de números operacionais são exclusivos do Chefe das Cordas.</div>
+<h4>5. Código de cores</h4>
+<table>
+<thead><tr><th>Cor</th><th>Significado</th></tr></thead>
+<tbody>
+<tr><td>Verde</td><td>até 2 meses</td></tr>
+<tr><td>Amarelo</td><td>até 5 meses</td></tr>
+<tr><td>Vermelho</td><td>até 8 meses</td></tr>
+<tr><td>Preto</td><td>mais de 8 meses ou sem registo</td></tr>
+</tbody>
+</table>
+<h4>6. Estados e cursos</h4>
+<ul>
+<li>O estado de cada manobra depende do último registo de cada operacional.</li>
+<li>Os cursos (RA/RU/RT) e a atribuição ao teleférico são geridos pelo Chefe das Cordas na ficha do operacional.</li>
+</ul>
+<h4>7. Problemas comuns</h4>
+<ul>
+<li><strong>Já está registada para hoje</strong>: já existe registo dessa manobra no próprio dia.</li>
+<li><strong>Não vejo um operacional</strong>: a Gestão mostra apenas os operacionais do teu turno.</li>
+<li><strong>Não consigo entrar</strong>: confirma e-mail, palavra-passe e ligação à internet.</li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+
+<script src="./supabase-config.js"></script>
+<script type="module" src="./utils.js"></script>
+<script type="module" src="./state.js"></script>
+<script type="module" src="./api.js"></script>
+<script type="module" src="./ui.js"></script>
+<div class="modal-overlay hide" id="transferModal" data-simple-modal>
+  <div class="modal">
+    <button class="modal-close" type="button" data-close-modal="transferModal">×</button>
+    <h2>Transferir Chefia</h2>
+    <div class="field"><input id="trNome" type="text" autocomplete="off" placeholder="Nome do novo chefe"></div>
+    <div class="field"><input id="trEmail" type="email" autocomplete="off" placeholder="E-mail: nome.sobrenome@cm-lisboa.pt"></div>
+    <p id="trMsg" class="msg" role="alert"></p>
+    <button id="trOk" class="primary hide" type="button">Transferir</button>
+  </div>
+</div>
+<script type="module" src="./app.js"></script>
+
+<div id="printArea"></div>
+<div id="numModal" class="modal-overlay hide" role="dialog" aria-modal="true">
+<div class="modal-content" style="max-width:430px">
+<div class="modal-header"><h3>Alterar número</h3><button id="numModalClose" class="modal-close" type="button" aria-label="Fechar">×</button></div>
+<div class="modal-body">
+<div class="field"><label>Novo número operacional<input id="numModalInput" inputmode="numeric" maxlength="4"></label></div>
+<button id="numModalOk" class="primary" type="button">Alterar</button>
+</div>
+</div>
+</div>  
+<div id="turnoModal" class="modal-overlay hide" role="dialog" aria-modal="true">
+<div class="modal-content" style="max-width:430px">
+<div class="modal-header"><h3>Trocar de turno</h3><button id="turnoModalClose" class="modal-close" type="button" aria-label="Fechar">×</button></div>
+<div class="modal-body">
+<div class="field"><label>Novo turno<select id="turnoModalSel"></select></label></div>
+<button id="turnoModalOk" class="primary" type="button">Trocar</button>
+</div>
+</div>
+</div>
+
+<div id="posModal" class="modal-overlay hide" role="dialog" aria-modal="true">
+<div class="modal-content" style="max-width:380px">
+<div class="modal-header"><h3>Posição no teleférico</h3><button id="posModalClose" class="modal-close" type="button" aria-label="Fechar">×</button></div>
+<div class="modal-body">
+<p id="posModalLabel" style="margin:0 0 12px">Seleciona a posição em que treinaste:</p>
+<div style="display:flex;gap:8px">
+<button class="pos-option primary" data-pos="1" type="button" style="flex:1">Posição 1</button>
+<button class="pos-option primary" data-pos="2" type="button" style="flex:1">Posição 2</button>
+<button class="pos-option secondary" data-pos="3" type="button" style="flex:1">Terra</button>
+<button class="pos-option secondary" data-pos="4" type="button" style="flex:1">VE</button>  
+</div>
+</div>
+</div>
+</div>
+<div id="importModal" class="modal-overlay hide" role="dialog" aria-modal="true">
+<div class="modal-content" style="max-width:430px">
+<div class="modal-header"><h3>Importar para a CID</h3><button id="importClose" class="modal-close" type="button" aria-label="Fechar">×</button></div>
+<div class="modal-body">
+<div class="field"><label>Turno de destino<select id="importSel"></select></label></div>
+<button id="importOk" class="primary" type="button">Importar</button>
+</div>
+</div>
+</div>
+<div class="modal-overlay hide" id="externoModal" data-simple-modal>
+  <div class="modal">
+    <button class="modal-close" type="button" data-close-modal="externoModal">×</button>
+    <h2>Tornar externo — destino no outro quartel</h2>
+    <div class="field"><label>Quartel<input id="externoQuartel" type="text" placeholder="Quartel de destino"></label></div>
+    <div class="field"><label>Turno de destino<select id="externoSel"></select></label></div>
+    <p id="externoMsg" class="msg" role="alert"></p>
+    <button id="externoOk" class="primary" type="button">Guardar</button>
+  </div>
+</div>
+<div id="textModal" class="modal-overlay hide" role="dialog" aria-modal="true">
+<div class="modal-content" style="max-width:430px">
+<div class="modal-header"><h3 id="textModalTitle">Texto</h3><button id="textModalClose" class="modal-close" type="button" aria-label="Fechar">×</button></div>
+<div class="modal-body">
+<div class="field"><label>Valor<input id="textModalInput" type="text"></label></div>
+<button id="textModalOk" class="primary" type="button">Guardar</button>
+</div>
+</div>
+</div>
+<div id="cursoModal" class="modal-overlay hide" role="dialog" aria-modal="true">
+<div class="modal-content" style="max-width:430px">
+<div class="modal-header"><h3 id="cursoModalTitle">Curso</h3><button id="cursoModalClose" class="modal-close" type="button" aria-label="Fechar">×</button></div>
+<div class="modal-body">
+<div class="field"><label>Data do curso<input id="cursoModalInput" type="date"></label></div>
+<button id="cursoModalOk" class="primary" type="button">Guardar</button>
+</div>
+</div>
+</div>
+
+<div id="cursoHistModal" class="modal-overlay hide" role="dialog" aria-modal="true">
+  <div class="modal-content" style="max-width:460px">
+    <div class="modal-header">
+      <h3 id="cursoHistTitle">Curso</h3>
+      <button id="cursoHistClose" class="modal-close" type="button" aria-label="Fechar">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="cursoHistAtivo" style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--blue-soft);margin-bottom:12px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.78rem;color:var(--muted);font-weight:700">Data ativa (última)</div>
+          <div id="cursoHistAtivoData" style="font-size:1rem;font-weight:800;color:var(--navy)">—</div>
+          <div id="cursoHistAtivoEstado" style="font-size:.78rem;font-weight:700;margin-top:2px"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <button id="cursoHistEdit" class="secondary" type="button" style="width:32px;height:32px;min-height:32px;padding:0;font-size:.9rem" title="Editar" aria-label="Editar">✏️</button>
+          <button id="cursoHistDel" class="bin-btn" type="button" style="width:32px;height:32px;min-height:32px" title="Eliminar" aria-label="Eliminar">🗑</button>
+        </div>
+      </div>
+      <h4 style="margin:14px 0 6px;font-size:.88rem;color:var(--navy)">Histórico</h4>
+      <div id="cursoHistList" class="curso-hist-list"></div>
+      <h4 id="cursoHistAddLabel" style="margin:14px 0 6px;font-size:.88rem;color:var(--navy)">Nova revalidação</h4>
+      <div class="field" style="margin-bottom:0">
+        <input id="cursoHistNovo" type="date">
+      </div>
+      <button id="cursoHistAdd" class="primary" type="button" style="margin-top:10px">+ Adicionar revalidação</button>
+      <div id="cursoHistMsg" class="msg" role="alert"></div>
+    </div>
+  </div>
+</div>
+    
+</body>
+</html>
